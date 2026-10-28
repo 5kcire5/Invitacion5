@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Fiesta de Graduación</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8E%93%3C/text%3E%3C/svg%3E">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --deep-navy: #051329; /* Azul fuerte sólido y profundo */
+            --subtle-gold: #c5a059; /* Dorado atenuado y mate */
+            --white: #ffffff;
+            --muted: rgba(255, 255, 255, 0.4);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--deep-navy);
+            background-image:
+                linear-gradient(135deg, rgba(5, 19, 41, 0.58) 0%, rgba(12, 35, 70, 0.54) 50%, rgba(74, 59, 26, 0.6) 100%),
+                url("2.png");
+            background-position: center, center 40%;
+            background-repeat: no-repeat;
+            background-size: cover, min(170vw, 1400px) auto;
+            background-attachment: fixed, fixed;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--white);
+            padding: 20px;
+            overflow-x: hidden;
+            overflow-y: auto;
+            position: relative;
+        }
+        #cover-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--deep-navy);
+            background-image:
+                linear-gradient(135deg, rgba(5, 19, 41, 0.58) 0%, rgba(12, 35, 70, 0.54) 50%, rgba(74, 59, 26, 0.6) 100%),
+                url("2.png");
+            background-position: center, center 40%;
+            background-repeat: no-repeat;
+            background-size: cover, min(170vw, 1400px) auto;
+            background-attachment: fixed, fixed;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100; /* Asegura estar por encima de todo */
+            cursor: pointer;
+            padding: 30px;
+            text-align: center;
+            /* Transición tipo cortina hacia arriba */
+            transition: transform 0.9s cubic-bezier(0.77, 0, 0.175, 1), opacity 0.8s ease;
+        }
+
+        .cover-content {
+            max-width: 600px;
+        }
+
+        #emoji-rain {
+            position: fixed;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 3;
+        }
+
+        .watermark {
+            position: fixed;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255, 255, 255, 0.35);
+            font-size: 8px;
+            letter-spacing: 2px;
+            pointer-events: none;
+            z-index: 101;
+        }
+
+        .falling-emoji {
+            position: absolute;
+            top: -40px;
+            left: var(--start-x);
+            font-size: var(--size);
+            line-height: 1;
+            opacity: 0;
+            animation: emojiFall var(--duration) linear forwards;
+            will-change: transform, opacity;
+        }
+
+        @keyframes emojiFall {
+            0% {
+                opacity: 0;
+                transform: translate3d(0, -5vh, 0) rotate(0deg);
+            }
+            12% { opacity: 0.65; }
+            85% { opacity: 0.6; }
+            100% {
+                opacity: 0;
+                transform: translate3d(var(--drift), 110vh, 0) rotate(var(--rotation));
+            }
+        }
+        /* Nombre en letras mayúsculas esculpidas */
+        .cover-content h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--subtle-gold);
+            letter-spacing: 5px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            text-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        /* Subtítulo de la portada */
+        .cover-content p {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 14px;
+            font-weight: 400;
+            color: var(--white);
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin-bottom: 50px;
+            opacity: 0.9;
+        }
+
+        /* Indicador sutil táctil */
+        .tap-indicator {
+            font-size: 11px;
+            font-weight: 200;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--muted);
+            animation: softPulseIndicator 2s infinite alternate ease-in-out;
+        }
+
+        @keyframes softPulseIndicator {
+            0% { opacity: 0.4; }
+            100% { opacity: 1; }
+        }
+
+        /* Efecto de desplazamiento al hacer clic */
+        #cover-screen.hidden {
+            transform: translateY(-100%);
+            opacity: 0;
+        }
+        .glass-container {
+            text-align: center;
+            width: 100%;
+            max-width: 480px;
+            padding: 50px 30px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 24px;
+            
+            backdrop-filter: blur(20px); 
+            -webkit-backdrop-filter: blur(20px);
+            
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            z-index: 2;
+            
+            animation: fadeIn 1.5s ease-out, gentleFloat 6s infinite alternate ease-in-out;
+            transition: border-color 0.5s ease, box-shadow 0.5s ease;
+        }
+
+        .glass-container:hover {
+            border-color: rgba(214, 175, 55, 0.2);
+            box-shadow: 0 35px 70px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes gentleFloat {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-6px); }
+        }
+
+        /* Título Principal de la tarjeta */
+        h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 32px;
+            font-weight: 400;
+            color: var(--white);
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            margin-bottom: 35px;
+            line-height: 1.4;
+        }
+
+        .graduation-cap {
+            display: block;
+            width: min(220px, 70%);
+            height: 64px;
+            object-fit: cover;
+            object-position: center 50%;
+            margin: 0 auto 12px;
+        }
+
+        .graduate-photo {
+            display: block;
+            width: min(240px, 76%);
+            height: auto;
+            margin: -12px auto 28px;
+            border: 2px solid rgba(197, 160, 89, 0.75);
+            border-radius: 18px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+        }
+
+        /* Datos del Evento */
+        .event-info {
+            font-size: 16px;
+            font-weight: 400;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--subtle-gold);
+            margin-bottom: 40px;
+        }
+
+        .event-info .time {
+            color: var(--white);
+            font-weight: 200;
+            margin-top: 8px;
+            display: block;
+            opacity: 0.85;
+            animation: softPulse 3s infinite alternate ease-in-out;
+        }
+
+        @keyframes softPulse {
+            0% { opacity: 0.6; text-shadow: 0 0 0px rgba(255,255,255,0); }
+            100% { opacity: 1; text-shadow: 0 0 8px rgba(255,255,255,0.4); }
+        }
+
+        /* Línea Divisoria Sutil */
+        .divider {
+            width: 40px;
+            height: 1px;
+            background-color: rgba(255, 255, 255, 0.15);
+            margin: 25px auto;
+            transition: width 0.4s ease, background-color 0.4s ease;
+        }
+
+        .glass-container:hover .divider {
+            width: 60px;
+            background-color: var(--subtle-gold);
+        }
+
+        /* Contador Numérico Estilizado */
+        .countdown {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+        }
+
+        .rsvp-section {
+            margin: 30px 0 0;
+            padding: 22px 18px 24px;
+            border: 1px solid rgba(197, 160, 89, 0.5);
+            border-radius: 16px;
+            background: linear-gradient(145deg, rgba(197, 160, 89, 0.16), rgba(197, 160, 89, 0.05));
+            box-shadow: 0 0 24px rgba(197, 160, 89, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        }
+
+        .rsvp-title {
+            font-family: 'Cinzel', serif;
+            font-size: 19px;
+            font-weight: 400;
+            letter-spacing: 1px;
+            line-height: 1.4;
+            color: var(--white);
+            margin-bottom: 8px;
+        }
+
+        .rsvp-text {
+            font-size: 12px;
+            font-weight: 300;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.78);
+        }
+
+        .rsvp-guests {
+            margin-top: 10px;
+            color: var(--subtle-gold);
+            font-size: 16px;
+            font-weight: 600;
+            letter-spacing: 0.6px;
+        }
+
+        .rsvp-deadline {
+            margin-top: 10px;
+            font-size: 12px;
+            font-weight: 500;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .forms-button[aria-disabled="true"] {
+            opacity: 0.65;
+            pointer-events: none;
+            cursor: not-allowed;
+        }
+
+        .forms-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 18px;
+            padding: 13px 24px;
+            border: 1px solid var(--subtle-gold);
+            border-radius: 24px;
+            background: var(--subtle-gold);
+            color: var(--deep-navy);
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 1.3px;
+            text-decoration: none;
+            text-transform: uppercase;
+        }
+
+        .time-group {
+            text-align: center;
+            position: relative;
+            cursor: default;
+        }
+
+        .time-group h2 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 36px;
+            font-weight: 200;
+            color: var(--white);
+            line-height: 1;
+            letter-spacing: 1px;
+            transition: color 0.3s ease, transform 0.3s ease;
+        }
+
+        .time-group:hover h2 {
+            color: var(--subtle-gold);
+            transform: translateY(-2px);
+        }
+
+        .time-group p {
+            font-size: 9px;
+            font-weight: 400;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 10px;
+            transition: color 0.3s ease;
+        }
+
+        .time-group:hover p {
+            color: var(--white);
+        }
+
+        /* Ubicación del evento */
+        .address-section {
+            margin-top: 30px;
+            padding-top: 24px;
+            border-top: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .address-title {
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 2px;
+            color: var(--subtle-gold);
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .address-venue {
+            font-family: 'Cinzel', serif;
+            font-size: 16px;
+            font-weight: 400;
+            letter-spacing: 1px;
+            color: var(--white);
+            margin-bottom: 8px;
+        }
+
+        .address-text {
+            font-size: 12px;
+            font-weight: 200;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.7);
+            letter-spacing: 0.5px;
+            margin-bottom: 18px;
+        }
+
+        .maps-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 11px 20px;
+            font-size: 11px;
+            font-weight: 400;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--subtle-gold);
+            text-decoration: none;
+            background: rgba(197, 160, 89, 0.06);
+            border: 1px solid rgba(197, 160, 89, 0.4);
+            border-radius: 24px;
+            transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+        }
+
+        .maps-button:hover {
+            background: var(--subtle-gold);
+            color: var(--deep-navy);
+            box-shadow: 0 0 15px rgba(197, 160, 89, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .dress-code-section {
+            margin-top: 30px;
+            padding-top: 24px;
+            border-top: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .dress-code-title {
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 2px;
+            color: var(--subtle-gold);
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+
+        .dress-code-image {
+            display: block;
+            width: 100%;
+            max-width: 300px;
+            height: auto;
+            margin: 0 auto;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 12px;
+        }
+
+        .invitation-note {
+            margin-top: 30px;
+            padding-top: 24px;
+            border-top: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .invitation-note h2 {
+            font-family: 'Cinzel', serif;
+            font-size: 15px;
+            font-weight: 400;
+            line-height: 1.6;
+            letter-spacing: 1px;
+            color: var(--subtle-gold);
+            margin-bottom: 10px;
+        }
+
+        .invitation-note .phrase-emoji {
+            display: inline-block;
+            font-size: 1.4em;
+            vertical-align: -0.12em;
+        }
+
+        .invitation-note p {
+            font-size: 13px;
+            font-weight: 300;
+            line-height: 1.8;
+            letter-spacing: 0.3px;
+            color: rgba(255, 255, 255, 0.78);
+        }
+
+        .farewell-note p {
+            font-family: 'Cinzel', serif;
+            font-size: 14px;
+            color: var(--white);
+        }
+
+        /* Ajustes de pantalla móvil */
+        @media (max-width: 480px) {
+            .cover-content h1 { font-size: 24px; letter-spacing: 2.5px; }
+            .cover-content p { font-size: 13px; letter-spacing: 2px; }
+            .tap-indicator { font-size: 12px; }
+            h1 { font-size: 27px; letter-spacing: 3px; }
+            .event-info { font-size: 15px; letter-spacing: 1.5px; }
+            .time-group h2 { font-size: 30px; }
+            .time-group p { font-size: 11px; letter-spacing: 1.5px; }
+            .countdown { gap: 14px; }
+            .graduation-cap { width: min(190px, 70%); height: 56px; }
+            .graduate-photo { width: min(220px, 76%); height: 250px; }
+            .rsvp-title { font-size: 20px; }
+            .rsvp-text { font-size: 14px; }
+            .rsvp-guests { font-size: 17px; }
+            .rsvp-deadline { font-size: 14px; }
+            .forms-button { font-size: 14px; }
+            .address-title, .dress-code-title { font-size: 13px; }
+            .address-venue { font-size: 17px; }
+            .address-text { font-size: 14px; }
+            .maps-button { font-size: 12px; }
+            .invitation-note h2 { font-size: 17px; }
+            .invitation-note p { font-size: 15px; }
+            .farewell-note p { font-size: 16px; }
+            .glass-container { padding: 40px 20px; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            #emoji-rain { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="emoji-rain" aria-hidden="true"></div>
+
+<!-- 1. CAPA DE LA PORTADA PRINCIPAL (OCUPA EL 100% DE LA PANTALLA) -->
+<div id="cover-screen" onclick="abrirInvitacion()">
+    <div class="cover-content">
+        <h1>KATHERIN ALEXANDRA<br>YAQUIÁN SUCHITE</h1>
+        <p>Mi fiesta de graduación</p>
+        <div class="tap-indicator">Toca para abrir</div>
+    </div>
+</div>
+<div class="watermark" aria-hidden="true">5KCIRE5</div>
+
+<!-- 2. TU PANEL DE CRISTAL ORIGINAL (DETRÁS DE LA CORTINA) -->
+<div class="glass-container">
+    <h1 class="graduation-title">
+        <img class="graduation-cap" src="2.png" alt="">
+        Mi fiesta de<br>Graduación
+    </h1>
+    <img class="graduate-photo" src="10.jpeg" alt="Fotografía de la festejada durante su infancia">
+
+    <div class="event-info">
+        6 de diciembre 2026
+        <span class="time">Hora — 6:00 PM</span>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="countdown" id="contador">
+        <div class="time-group">
+            <h2 id="dias">00</h2>
+            <p>Días</p>
+        </div>
+        <div class="time-group">
+            <h2 id="horas">00</h2>
+            <p>Hrs</p>
+        </div>
+        <div class="time-group">
+            <h2 id="minutos">00</h2>
+            <p>Min</p>
+        </div>
+        <div class="time-group">
+            <h2 id="segundos">00</h2>
+            <p>Seg</p>
+        </div>
+    </div>
+    <audio id="invitation-audio" preload="auto" aria-hidden="true">
+        <source src="cancion.mp3" type="audio/mpeg">
+    </audio>
+    <section class="rsvp-section" aria-labelledby="rsvp-title">
+        <h2 class="rsvp-title" id="rsvp-title">¿Nos acompañas?</h2>
+        <p class="rsvp-text">Tu confirmación es muy importante</p>
+        <p class="rsvp-guests">Invitación válida para 5 personas</p>
+        <!-- Reemplaza href="#" con el enlace de Google Forms cuando lo tengas. -->
+        <a class="forms-button" href="https://docs.google.com/forms/d/e/1FAIpQLSfh04WCnA6oE0nmnUUd1uptGxUkpTPX_R7q5vMF29W3frC5aA/viewform?usp=publish-editor" aria-disabled="true" tabindex="-1">Confirmar asistencia</a>
+                <p class="rsvp-deadline" id="rsvp-deadline" aria-live="polite">Confirma tu asistencia antes del 13 de noviembre de 2026.</p>
+
+    </section>
+    <section class="address-section" aria-label="Ubicación del evento">
+        <p class="address-title">Ubicación</p>
+        <h2 class="address-venue">Club de Caza, Tiro y Pesca</h2>
+        <p class="address-text">3.ª avenida 8-35, Zona 2<br>Interior Finca El Zapote, Guatemala</p>
+        <a href="https://www.google.com/maps/place/Club+de+Caza,+Tiro+y+Pesca/@14.6576474,-90.5177743,1111m/data=!3m1!1e3!4m14!1m7!3m6!1s0x8589a20822829007:0x2964b6d1c1a647f5!2sClub+de+Caza,+Tiro+y+Pesca!8m2!3d14.6576422!4d-90.5151994!16s%2Fg%2F12hs7jwxx!3m5!1s0x8589a20822829007:0x2964b6d1c1a647f5!8m2!3d14.6576422!4d-90.5151994!16s%2Fg%2F12hs7jwxx?entry=ttu&amp;g_ep=EgoyMDI2MTAyMC4wIKXMDSoASAFQAw%3D%3D" target="_blank" rel="noopener noreferrer" class="maps-button">
+            Ver ubicación en Maps
+        </a>
+    </section>
+    <section class="dress-code-section" aria-label="Código de vestir">
+        <p class="dress-code-title">DRESS CODE<br><span>FORMAL</span></p>
+        <img class="dress-code-image" src="code.png" alt="Código de vestir formal">
+    </section>
+    <section class="invitation-note" aria-labelledby="gift-title">
+        <h2 id="gift-title"><span class="phrase-emoji">🎁💌</span> Lluvia de regalos y sobres <span class="phrase-emoji">💌🎁</span></h2>
+        <p>Tu compañía es lo más importante para mí. Si deseas celebrar conmigo con un detalle especial, puedes hacerlo mediante un regalo o un sobre con efectivo.</p>
+    </section>
+    <section class="invitation-note" aria-labelledby="toast-title">
+        <h2 id="toast-title"><span class="phrase-emoji">🥂</span> ¡La celebración es mejor juntos! <span class="phrase-emoji">🥂</span></h2>
+        <p>Si gustas, puedes traer tu propio alcohol para brindar.</p>
+    </section>
+    <section class="invitation-note farewell-note" aria-label="Mensaje final">
+        <p>Dios ha sido fiel en cada paso de este camino. Gracias por acompañarme a celebrar, ¡te espero!</p>
+    </section>
+</div>
+<script>
+    const invitationAudio = document.getElementById("invitation-audio");
+
+    const formsButton = document.querySelector(".forms-button");
+    const rsvpDeadlineMessage = document.getElementById("rsvp-deadline");
+    const rsvpCloseDate = new Date(2026, 10, 14);
+
+    function actualizarEstadoConfirmacion() {
+        const plazoCerrado = Date.now() >= rsvpCloseDate.getTime();
+        const formsUrl = formsButton.getAttribute("href");
+        const tieneEnlaceForms = Boolean(formsUrl && formsUrl !== "#");
+        const deshabilitado = plazoCerrado || !tieneEnlaceForms;
+
+        formsButton.setAttribute("aria-disabled", String(deshabilitado));
+        if (deshabilitado) {
+            formsButton.setAttribute("tabindex", "-1");
+        } else {
+            formsButton.removeAttribute("tabindex");
+        }
+
+        if (plazoCerrado) {
+            formsButton.textContent = "Confirmación cerrada";
+            rsvpDeadlineMessage.textContent = "El plazo para confirmar asistencia finalizó.";
+        }
+    }
+
+    formsButton.addEventListener("click", event => {
+        if (formsButton.getAttribute("aria-disabled") === "true") {
+            event.preventDefault();
+        }
+    });
+
+    actualizarEstadoConfirmacion();
+    window.setTimeout(
+        actualizarEstadoConfirmacion,
+        Math.max(0, rsvpCloseDate.getTime() - Date.now())
+    );
+
+    const emojiRain = document.getElementById("emoji-rain");
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+    function crearEmoji() {
+        if (reducedMotion.matches || emojiRain.childElementCount >= 12) {
+            return;
+        }
+
+        const emoji = document.createElement("span");
+        const symbols = ["✨", "🎓", "🩺"];
+        const duration = 8 + Math.random() * 5;
+
+        emoji.className = "falling-emoji";
+        emoji.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+        emoji.style.setProperty("--start-x", `${Math.random() * 100}vw`);
+        emoji.style.setProperty("--size", `${18 + Math.random() * 12}px`);
+        emoji.style.setProperty("--duration", `${duration}s`);
+        emoji.style.setProperty("--drift", `${Math.random() * 140 - 70}px`);
+        emoji.style.setProperty("--rotation", `${Math.random() * 160 - 80}deg`);
+        emoji.addEventListener("animationend", () => emoji.remove(), { once: true });
+        emojiRain.appendChild(emoji);
+    }
+
+    if (!reducedMotion.matches) {
+        crearEmoji();
+        setInterval(crearEmoji, 900);
+    }
+
+    // Función para deslizar la portada hacia arriba al hacer clic
+    function abrirInvitacion() {
+        const portada = document.getElementById("cover-screen");
+        portada.classList.add("hidden");
+        invitationAudio.play().catch(error => {
+            console.error("No se pudo iniciar cancion.mp3:", error);
+        });
+    }
+
+    // Fecha objetivo exacta: 6 de diciembre de 2026 a las 18:00
+    const targetDate = new Date("Dec 6, 2026 18:00:00").getTime();
+
+    function actualizarContador() {
+        const ahora = new Date().getTime();
+        const diferencia = targetDate - ahora;
+
+        if (diferencia <= 0) {
+            clearInterval(intervalo);
+            document.getElementById("contador").innerHTML = "<div class='time-group'><h2>00</h2><p>¡LISTO!</p></div>";
+            return;
+        }
+
+        const d = Math.floor(diferencia / (1000 * 60 * 60 * 24));
+        const h = Math.floor((diferencia % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const m = Math.floor((diferencia % (1000 * 60 * 60)) / (1000 * 60));
+        const s = Math.floor((diferencia % (1000 * 60)) / 1000);
+
+        document.getElementById("dias").textContent = d < 10 ? "0" + d : d;
+        document.getElementById("horas").textContent = h < 10 ? "0" + h : h;
+        document.getElementById("minutos").textContent = m < 10 ? "0" + m : m;
+        document.getElementById("segundos").textContent = s < 10 ? "0" + s : s;
+    }
+
+    const intervalo = setInterval(actualizarContador, 1000);
+    actualizarContador();
+</script>
+
+</body>
+</html>
